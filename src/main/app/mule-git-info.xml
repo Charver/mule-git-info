@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:mulerequester="http://www.mulesoft.org/schema/mule/mulerequester"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/mulerequester http://www.mulesoft.org/schema/mule/mulerequester/current/mule-mulerequester.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+	<file:connector name="file-connector-configuration"
+		autoDelete="false" streaming="true" validateConnections="true"
+		doc:name="File" />
+	<spring:beans>
+		<spring:bean id="gitInfo" class="org.apache.commons.io.IOUtils"
+			factory-method="toString">
+			<spring:constructor-arg type="java.io.InputStream"
+				value="classpath:git.json" />
+		</spring:bean>
+	</spring:beans>
+
+	<flow name="mule-git-infoFlow">
+		<http:listener config-ref="api-http-listener-config"
+			path="${application.path}/version" allowedMethods="GET" doc:name="HTTP" />
+		<set-payload doc:name="Set Payload" value="#[app.registry.gitInfo]" />
+		<set-property propertyName="Content-Type" value="application/json"
+			doc:name="Property" />
+	</flow>
+</mule>
